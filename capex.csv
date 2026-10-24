@@ -1,0 +1,13 @@
+item,base_inr,optimistic_inr,pessimistic_inr
+PV modules 34 x 540 Wp (18.36 kWp),477360,403920,587520
+"HDG ground-mount structure, foundations, array fence",119340,100980,146880
+"15 kW 3-phase hybrid PCS, island/grid-forming, HV battery",260000,220000,350000
+"40.96 kWh HV LFP battery with BMS, rack, switchgear",819200,655360,1064960
+"EMS controller, gateway/GSM, HMI, sensors; 30 smart meters; 25 household essential/flexible branch controls",210000,170000,260000
+"LT 415/240 V ABC network (~800 m), poles, service drops, DBs, protection, SPD, earthing",420000,300000,550000
+"Battery/PCS enclosure, fire & lightning protection, signage",140000,110000,180000
+"Transport (~150 km incl. forest road), installation, testing, commissioning, design review",180000,140000,240000
+"Baseline survey, co-design workshops, operator training",80000,60000,100000
+contingency,270590,151218,521904
+total,2976490,2311478,4001264
+per_connection,99216,77049,133375

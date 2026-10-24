@@ -1,0 +1,5 @@
+controller,essential_shortfall_days_per_yr,share_of_all_energy_delivered_pct
+No priority rule,42.5,97.0
+E1 fixed SoC floors,6.9,94.0
+Energy budget (offline forecast),0.6,95.2
+Energy budget + weather forecast (±35% error),0,95.2
