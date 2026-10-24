@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rural Spark: Results and Evidence</title>
+<meta name="description" content="Simulation results, MATLAB/Simulink battery model, finance model and data for Rural Spark, a community-owned solar mini-grid for a Chenchu (PVTG) hamlet in Amrabad, Telangana. Schneider Electric Go Green 2026, Phase 2.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}*{box-sizing:border-box}img{max-width:100%}
+/* Layout: single reading column of an engineering results note; wide figures break out to 1080px; tables scroll in their own box */
+:root{
+  --bg:#FBFCFB; --surface:#FFFFFF; --ink:#16212B; --ink2:#4A5560; --line:#DCE2DF;
+  --accent:#00813A; --accent-soft:#E6F4EA; --sim:#1B5AA6; --sim-soft:#E8F0FA;
+  --bad:#B42318; --bad-soft:#FBEAE8; --warn:#9A5B10; --warn-soft:#FBF1E3;
+  --display:"Public Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1613; --surface:#16201B; --ink:#E7EEEA; --ink2:#A7B3AD; --line:#2A3631;
+  --accent:#4CC27A; --accent-soft:#183323; --sim:#8AB8F0; --sim-soft:#16263A;
+  --bad:#F08A80; --bad-soft:#3A1C19; --warn:#E7B36A; --warn-soft:#33270F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1613; --surface:#16201B; --ink:#E7EEEA; --ink2:#A7B3AD; --line:#2A3631;
+  --accent:#4CC27A; --accent-soft:#183323; --sim:#8AB8F0; --sim-soft:#16263A;
+  --bad:#F08A80; --bad-soft:#3A1C19; --warn:#E7B36A; --warn-soft:#33270F; color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.col{max-width:720px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:clamp(28px,4.5vw,42px);font-weight:800;letter-spacing:-.01em}
+h2{font-size:24px;font-weight:700;margin-top:56px;padding-top:20px;border-top:1px solid var(--line)}
+h3{font-size:17px;font-weight:700;margin-top:28px}
+p{margin:12px 0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.lede{font-size:18px;color:var(--ink2);max-width:720px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-family:var(--mono);font-size:13px;color:var(--ink2);margin-top:16px}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;padding:2px 8px;border-radius:4px;vertical-align:middle}
+.tag.sim{background:var(--sim-soft);color:var(--sim)}
+.tag.meas{background:var(--accent-soft);color:var(--accent)}
+.tag.lim{background:var(--warn-soft);color:var(--warn)}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:28px}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;min-width:0}
+.kpi b{display:block;font-family:var(--display);font-size:26px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.15}
+.kpi span{font-size:13px;color:var(--ink2);line-height:1.4;display:block;margin-top:4px}
+figure{margin:20px 0}
+figure img{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:6px}
+figcaption{font-size:13px;color:var(--ink2);margin-top:8px;max-width:820px}
+.tbl{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-size:12px;font-weight:700;color:var(--ink2);background:var(--bg);letter-spacing:.02em}
+tbody tr:last-child td{border-bottom:none}
+td.ours,th.ours{background:var(--accent-soft);font-weight:700}
+td.bad{color:var(--bad);font-weight:600}
+.note{font-size:13px;color:var(--ink2)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
+@media (max-width:760px){.two{grid-template-columns:minmax(0,1fr)}}
+ul{padding-left:20px;margin:8px 0}
+li{margin:4px 0}
+code{font-family:var(--mono);font-size:13px;background:var(--accent-soft);padding:1px 5px;border-radius:3px}
+a{color:var(--accent);text-underline-offset:2px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.limits{background:var(--warn-soft);border-radius:8px;padding:16px 20px;margin-top:16px}
+.limits h3{margin-top:0;color:var(--warn)}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 4px}
+.jump a{font-size:13px;font-weight:600;text-decoration:none;color:var(--accent);background:var(--accent-soft);padding:6px 12px;border-radius:999px}
+.jump a:hover{text-decoration:underline}
+.gal{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:760px){.gal{grid-template-columns:minmax(0,1fr)}}
+.gal figure{margin:0;min-width:0}
+ul.dl{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0}
+ul.dl a{display:inline-block;font-family:var(--mono);font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);text-decoration:none}
+details.ds{border:1px solid var(--line);border-radius:8px;background:var(--surface);margin:10px 0;padding:0 14px}
+details.ds summary{cursor:pointer;padding:12px 0;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+details.ds summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.dsd{color:var(--ink2);font-size:14px;flex:1 1 280px;min-width:0}
+.dsn{font-family:var(--mono);font-size:12px;color:var(--ink2)}
+.dsbar{display:flex;gap:8px;margin:2px 0 8px}
+.dsbar button{font:600 13px var(--body);color:var(--surface);background:var(--accent);border:0;border-radius:6px;padding:7px 14px;cursor:pointer}
+.dsbar button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+details.ds textarea{width:100%;min-height:120px;font-family:var(--mono);font-size:12px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px}
+ol.srcs{padding-left:22px;font-size:14px}ol.srcs li{margin:6px 0}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);font-size:13px;color:var(--ink2)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="eyebrow">Schneider Electric Go Green 2026 · Phase 2 · Supporting evidence</div>
+  <h1 style="margin-top:10px">Rural Spark: results and evidence</h1>
+  <p class="lede">The engineering evidence behind the Rural Spark deck: a solar mini-grid for a Chenchu hamlet in Amrabad, Nagarkurnool, Telangana. 18.36 kWp PV, 40.96 kWh LFP battery, 15 kW three-phase grid-forming inverter, 30 metered connections, about 40 kWh/day of demand.</p>
+  <div class="meta"><span>Team: Parthasarathy P · Tanush Pavan Vakalaggada</span><span>Amrita Vishwa Vidyapeetham</span><span>Results updated 24 Oct 2026</span></div>
+  <p class="note" style="margin-top:14px"><span class="tag sim">SIMULATED</span> Every performance figure on this page comes from a computer model on satellite-derived weather. No hardware has run in the field yet. Loads are assumed appliance schedules until the planned 4-week metered baseline.</p>
+
+  <div class="kpis">
+    <div class="kpi"><b>100%</b><span>of essential load (lights, phones, health sub-centre, drinking-water pumping) served over a full typical year with our controller</span></div>
+    <div class="kpi"><b>9 → 0</b><span>essential-load blackouts per year: typical reactive inverter vs our controller</span></div>
+    <div class="kpi"><b>0</b><span>spoiled processing batches per year with ours, vs 2 (static thresholds) and 3 (reactive)</span></div>
+    <div class="kpi"><b>16 / 16</b><span>Simulink battery-model cases pass against MATLAB and Python (max SoC error 1.3×10⁻¹⁰)</span></div>
+  </div>
+
+
+  <nav class="jump" aria-label="Sections">
+    <a href="#animations">Animated outputs</a><a href="#worst-week">Worst week</a><a href="#year">Full year &amp; stress</a><a href="#model-a">16-year model</a><a href="#battery">Battery model</a><a href="#finance">Finance</a><a href="#data">Data (CSV)</a><a href="#code">Model code</a><a href="#sources">Sources</a>
+  </nav>
+
+  <h2 id="animations">Animated outputs</h2>
+  <div class="col"><p>Each animation replays a model output used in the deck. Static versions and the underlying data are in the sections below.</p></div>
+  <div class="gal">
+    <figure><img src="week.gif" alt="Animated worst-week replay: solar, battery state of charge and essential energy not served for four controllers" loading="lazy"><figcaption><b>Worst week, 4 controllers.</b> Typical inverter loses 8.7 kWh of essential supply; Rural Spark loses none. <a href="worst_week_hourly.csv">Data</a></figcaption></figure>
+    <figure><img src="worst9.gif" alt="Animated worst nine days of 2005 to 2020: battery state of charge with and without the energy budget, and evening dark hours" loading="lazy"><figcaption><b>Worst 9 days in 16 years (Oct 2013).</b> 22 evening hours dark with no priority rule; 0 with the energy budget.</figcaption></figure>
+    <figure><img src="shortfall.gif" alt="Animated bar chart of essential-shortfall days per year for four controllers" loading="lazy"><figcaption><b>Essential-shortfall days a year, 16-year model.</b> 42.5 → 6.9 → 0.6 → 0.0. <a href="model_a_controllers.csv">Data</a></figcaption></figure>
+    <figure><img src="stress.gif" alt="Animated bar charts of essential blackouts and spoiled batches per year under four stress cases" loading="lazy"><figcaption><b>Full year and stress tests.</b> Only Rural Spark stays at zero blackouts and zero spoiled batches. <a href="model_b_results.csv">Data</a></figcaption></figure>
+    <figure><img src="verify.gif" alt="Animated bar chart of 16 Simulink verification cases, all far below the pass limit" loading="lazy"><figcaption><b>Simulink battery model, 16 cases run in MATLAB.</b> All pass, worst SoC difference 1.3×10<sup>−10</sup>. <a href="simulink_verification.csv">Data</a></figcaption></figure>
+    <figure><img src="reserve.gif" alt="Animated renewal reserve over 15 years for four finance scenarios" loading="lazy"><figcaption><b>Renewal reserve, 15 years.</b> Positive in the base case; fails in year 12 on tariffs alone. <a href="renewal_reserve.csv">Data</a></figcaption></figure>
+    <figure><img src="progress.gif" alt="Animated ring showing 11,838 of 1,00,000 off-grid PVTG homes electrified" loading="lazy"><figcaption><b>The energy gap.</b> 11,838 of 1,00,000 off-grid PVTG homes electrified by 30 Jun 2026 (12%).</figcaption></figure>
+    <figure><img src="hero.gif" alt="Animated illustration of one evening in the pilot hamlet, homes and services lighting up as the battery discharges" loading="lazy"><figcaption><b>One evening in the pilot hamlet (illustration).</b> Battery level follows the 16-year model on 20 Oct 2013.</figcaption></figure>
+  </div>
+
+  <h2 id="tested">1. What was tested</h2>
+  <div class="col">
+    <p>Two independent models were built and both point the same way.</p>
+    <ul>
+      <li><b>Model A, 16-year hourly dispatch.</b> PVGIS-ERA5 hourly weather for 2005–2020 at 16.37°N, 78.83°E (140,256 hours) on the R1 hardware. Compares no priority rule, the earlier E1 fixed SoC floors and our energy-budget controller.</li>
+      <li><b>Model B, 5/15-minute controller study (B1).</b> PVGIS v5.2 typical meteorological year, a PV model checked to within 0.8% of PVGIS PVcalc (1,487 vs 1,476 kWh/kWp), stochastic appliance-level loads, an imperfect day-ahead forecast and a single AC bus with energy balance asserted each step. Four controllers run on identical inputs: reactive (typical inverter, first come first served), static SoC thresholds, our forecast-aware energy budget, and an oracle with perfect foresight as the upper bound. The battery pack is the MATLAB model in section 4.</li>
+    </ul>
+  </div>
+
+  <h2 id="worst-week">2. The three darkest days of the year</h2>
+  <div class="col"><p>Model B, R1 hardware, 7-day window from 26 October of the TMY with the three lowest-sun consecutive days in the middle. 5-minute step.</p></div>
+  <figure><img src="week.gif" alt="Animated simulation of the worst week: solar output, battery state of charge and cumulative essential energy not served for four controllers; only the typical inverter hits the 20% floor and loses 8.7 kWh of essential supply" loading="lazy">
+  <figcaption>Animated replay. Top: solar output. Middle: battery state of charge. Bottom: cumulative essential (Tier 1) energy not served to lights, phones and the health sub-centre. The typical inverter hits the 20% floor twice; the three planned controllers never do. Data: <a href="#data">worst_week_hourly</a>.</figcaption></figure>
+  <div class="tbl"><table>
+    <thead><tr><th>S3 worst week, R1 hardware</th><th>Reactive</th><th>Static</th><th class="ours">Ours</th><th>Oracle</th></tr></thead>
+    <tbody>
+      <tr><td>Tier 1 availability</td><td class="bad">82.3%</td><td>100%</td><td class="ours">100%</td><td>100%</td></tr>
+      <tr><td>Essential blackouts · longest</td><td class="bad">2 · 16 h</td><td>0</td><td class="ours">0</td><td>0</td></tr>
+      <tr><td>Tier 1 energy lost (kWh)</td><td class="bad">11.2 (8.7 lights/health + 2.5 water)</td><td>0</td><td class="ours">0</td><td>0</td></tr>
+      <tr><td>Tier 2 comfort served</td><td>88.7%</td><td>84.2%</td><td class="ours">81.3%</td><td>80.9%</td></tr>
+      <tr><td>Cold-store hours out of range</td><td>24.5</td><td>86.8</td><td class="ours">47.5</td><td>45.3</td></tr>
+      <tr><td>Curtailments announced in advance</td><td>–</td><td>–</td><td class="ours">85% · 10.5 h notice</td><td>–</td></tr>
+    </tbody></table></div>
+  <p class="note">Ours deliberately serves less comfort load than reactive so that essentials never go dark. This is the trade the community is asked to agree to in the tier workshops.</p>
+
+  <h2 id="year">3. A full year and stress tests</h2>
+  <div class="col"><p>Model B, R1 hardware, full TMY year at 15-minute steps. Each stress case changes one thing.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Case (R1 hardware, annual)</th><th>Metric</th><th>Reactive</th><th>Static</th><th class="ours">Ours</th><th>Oracle</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="4">Reference year</td><td>Tier 1 availability</td><td class="bad">99.13%</td><td>100%</td><td class="ours">100%</td><td>100%</td></tr>
+      <tr><td>Essential blackouts / yr</td><td class="bad">9 (longest 16 h)</td><td>0</td><td class="ours">0</td><td>0</td></tr>
+      <tr><td>Processing kWh delivered · batches spoiled</td><td>5,783 · 3</td><td>5,744 · 2</td><td class="ours">5,848 · 0</td><td>5,856 · 0</td></tr>
+      <tr><td>Cold-store hours out of range</td><td>50</td><td>272</td><td class="ours">99</td><td>101</td></tr>
+      <tr><td>Battery at 80% capacity</td><td>Tier 1 · spoiled</td><td class="bad">98.72% · 4</td><td>100% · 2</td><td class="ours">100% · 0</td><td>100% · 0</td></tr>
+      <tr><td>One PV string in four down</td><td>Tier 1 · spoiled</td><td class="bad">96.83% · 15</td><td>100% · 13</td><td class="ours">100% · 0</td><td>100% · 0</td></tr>
+      <tr><td>Demand +20%</td><td>Tier 1 · spoiled</td><td class="bad">97.67% · 9</td><td>100% · 8</td><td class="ours">100% · 0</td><td>100% · 0</td></tr>
+      <tr><td>Battery at 70% capacity</td><td>Tier 1 · spoiled</td><td class="bad">98.55% · 5</td><td>100% · 4</td><td class="ours">100% · 0</td><td>100% · 0</td></tr>
+    </tbody></table></div>
+  <p class="note">Ours captures 92% of the processing-energy gain that perfect foresight could add over static thresholds (5,848 vs 5,744 and 5,856 kWh). Its cost: more relay switching on the worst days (up to 16 changes a day vs 4 for static), which will be addressed with hysteresis tuning before firmware freeze.</p>
+
+  <figure><img src="stress.gif" alt="Animated bar charts of essential blackouts and spoiled batches per year under four stress cases" loading="lazy"></figure>
+  <h3 id="model-a">Model A: 16 years of real hourly weather</h3>
+  <div class="two">
+    <div class="tbl" style="margin:8px 0"><table>
+      <thead><tr><th>Controller, R1 hardware</th><th>Days/yr with essential shortfall</th></tr></thead>
+      <tbody>
+        <tr><td>No priority rule</td><td class="bad">42.5</td></tr>
+        <tr><td>E1 fixed SoC floors</td><td>6.9</td></tr>
+        <tr><td class="ours">Energy budget, offline forecast</td><td class="ours">0.6</td></tr>
+        <tr><td class="ours">Energy budget + weather forecast (±35% error)</td><td class="ours">0.0</td></tr>
+      </tbody></table></div>
+    <p class="note" style="margin-top:8px">Worst 9 days on record (20–28 Oct 2013): 22 evening hours dark with no rule, 12 h with E1 floors, 0 h with the energy budget. Model A and Model B use different weather (16 real years vs one typical year) and different load models, so their numbers are not directly comparable. Both rank the controllers the same way.</p>
+  </div>
+  <figure><img src="worst9.gif" alt="Animated battery state of charge during 20 to 28 October 2013 with and without the energy budget; without it the battery sits at its floor for five evenings" loading="lazy"></figure>
+
+  <h3>Sizing sweep</h3>
+  <div class="col"><p>Model B at the original specification scale (24.5 kWh/day). Our controller holds Tier 1 at 100% across the whole grid of 8–14 kWp × 10–30 kWh; static thresholds need at least 20 kWh of battery to do the same.</p></div>
+  <figure><img src="sizing_heatmaps.png" alt="Heatmaps of Tier 1 availability and Tier 3 energy across PV and battery sizes for each controller" loading="lazy"><figcaption>Sizing sweep at specification scale (10 kWp / 20 kWh reference, 24.5 kWh/day). The R1 design (18.36 kWp / 40.96 kWh / ~40 kWh/day) was chosen from Model A on 16 years of weather.</figcaption></figure>
+
+  <h2 id="battery">4. Battery pack model in MATLAB / Simulink</h2>
+  <div class="col">
+    <p><code>RuralSpark_BatteryPack.slx</code> is a block-level Simulink model of the LFP pack. It is built from standard blocks, with no S-functions or MATLAB Function blocks, so every equation is visible on the canvas. Subsystems:</p>
+    <ul>
+      <li><b>Power limits:</b> 0.5C charge and discharge, and a charge derate above 45 °C cell temperature.</li>
+      <li><b>Power clamp:</b> Saturation Dynamic that keeps requests inside the limits and the 20–100% SoC window.</li>
+      <li><b>Efficiency and losses:</b> 97% one-way charge and discharge efficiency, with conversion losses fed to the thermal model.</li>
+      <li><b>SoC update:</b> a discrete-time integrator limited to 0.2–1.0.</li>
+      <li><b>Thermal model:</b> lumped cell temperature with an enclosure offset.</li>
+      <li><b>EFC counter and ageing:</b> 1.5%/yr calendar fade and 0.005% per equivalent full cycle.</li>
+      <li><b>Electrical view:</b> OCV lookup and pack voltage and current.</li>
+    </ul>
+    <p>All parameters come from one struct <code>bp</code> (<code>bp_default_params.m</code>). The same struct drives the Simulink model, the MATLAB function model <code>bp_step.m</code> and the Python twin used inside the dispatch simulation.</p>
+  </div>
+  <figure><img src="pack.png" alt="Simulink subsystem diagram of the LFP battery pack showing power limits, power clamp, efficiency and losses, SoC integrator, thermal model, EFC integrator, ageing and electrical view blocks" loading="lazy"><figcaption>Inside the LFP Battery Pack subsystem, exported from MATLAB R2025a.</figcaption></figure>
+  <div class="two">
+    <figure style="margin:0"><img src="top.png" alt="Top-level Simulink harness with input profiles, the battery pack subsystem, scopes and logged outputs" loading="lazy"><figcaption>Test harness: replayed battery requests and outdoor temperature in; SoC, power, temperature, EFC and capacity out.</figcaption></figure>
+    <div>
+      <h3 style="margin-top:0">Verification <span class="tag meas">RUN IN MATLAB R2025a</span></h3>
+      <figure style="margin:8px 0"><img src="verify.gif" alt="Animated verification of 16 Simulink cases" loading="lazy"></figure>
+      <p>The model was run on 16 replay profiles: weeks S1–S3 at 5 minutes and full year S4 at 15 minutes, for each of the 4 controllers. Every case was compared with the same profile through <code>bp_step.m</code> and with the Python simulation.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Check (worst of 16 cases)</th><th>Max difference</th></tr></thead>
+        <tbody>
+          <tr><td>SoC, Simulink vs bp_step.m</td><td>5.6×10⁻¹⁶</td></tr>
+          <tr><td>SoC, Simulink vs Python</td><td>1.3×10⁻¹⁰</td></tr>
+          <tr><td>Power, Simulink vs bp_step.m</td><td>5.5×10⁻¹⁴ kW</td></tr>
+          <tr><td>Cell temperature</td><td>1.4×10⁻¹⁴ °C</td></tr>
+          <tr><td><b>Result</b></td><td><b>16 / 16 PASS</b></td></tr>
+        </tbody></table></div>
+      <p class="note">The replay profiles come from the B1 specification case (10 kWp / 20 kWh). The parameter struct scales by energy, and the R1 runs above use the identical equations with E<sub>nom</sub> = 40.96 kWh.</p>
+    </div>
+  </div>
+  <h3>What the pack model says about battery life</h3>
+  <div class="col">
+    <p>With our controller the R1 pack cycles about 118 equivalent full cycles a year. Linear fade then reaches 80% capacity in year 9.6 and about 73% in year 13. Section 3 shows that our controller still serves Tier 1 at 100% with the battery at 70% capacity. The financial model therefore plans the battery replacement in year 13, on measured state of health. The year-10 case is shown as a downside in the deck's sensitivity analysis.</p>
+  </div>
+
+
+  <h2 id="finance">5. Financial model</h2>
+  <div class="col">
+    <p>A 15-year cash-flow and asset-renewal model in Python. Every input is labelled by type (published price, estimate or proposal). No funding is sanctioned and no tariff is agreed; both are shown as assumptions.</p>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><b>₹29.76 L</b><span>capital cost, base (range ₹23.1–40.0 L); ₹99,200 per connection</span></div>
+    <div class="kpi"><b>2.2×</b><span>year-1 revenue ÷ operating cost with grant-funded capex (1.5× on tariffs alone)</span></div>
+    <div class="kpi"><b>+₹1.6 L</b><span>operator NPV at 8% with grant capex; −₹28 L if capex were privately financed</span></div>
+    <div class="kpi"><b>₹39/kWh</b><span>levelised cost incl. capex at 8% (World Bank 2019 mini-grid benchmark US$0.55–0.60)</span></div>
+  </div>
+  <p class="note">The renewal reserve stays positive for 15 years in the base case, which includes a ₹45,000/yr State parity payment (proposal). With tariffs alone it turns negative in year 12. Data: <a href="#data">capex</a>, <a href="#data">renewal_reserve</a>, <a href="#data">base_cashflow</a>.</p>
+
+  <figure><img src="reserve.gif" alt="Animated renewal reserve over 15 years for four finance scenarios" loading="lazy"></figure>
+  <h2 id="data">6. Data behind every chart</h2>
+  <div class="col"><p>Each dataset is the exact output used for the charts in the deck and on this page. Download the CSV, or open one to preview and copy it.</p></div>
+  <ul class="dl"><li><a href="worst_week_hourly.csv" download>worst_week_hourly.csv</a></li><li><a href="model_b_results.csv" download>model_b_results.csv</a></li><li><a href="model_a_controllers.csv" download>model_a_controllers.csv</a></li><li><a href="model_a_monthly_yield.csv" download>model_a_monthly_yield.csv</a></li><li><a href="simulink_verification.csv" download>simulink_verification.csv</a></li><li><a href="capex.csv" download>capex.csv</a></li><li><a href="renewal_reserve.csv" download>renewal_reserve.csv</a></li><li><a href="base_cashflow.csv" download>base_cashflow.csv</a></li><li><a href="kpis.csv" download>kpis.csv</a></li></ul>
+  <div id="datasets"></div>
+
+  <h2 id="code">Model code</h2>
+  <div class="col"><p>All three models are in one download, so every result above can be re-run. <a href="Rural_Spark_models.zip" download><b>Download Rural_Spark_models.zip</b></a> (code, inputs and results), or browse the <a href="https://github.com/Parthasarathy1705/rural-spark">project repository</a>.</p>
+  <ul>
+    <li><b>simulation_b1/</b>: Model B, the 5/15-minute controller simulation (Python), with the MATLAB battery pack model and Simulink file (<code>matlab/RuralSpark_BatteryPack.slx</code>; run <code>matlab/RUN_ME.m</code>).</li>
+    <li><b>dispatch_16yr/</b>: Model A, the 16-year hourly dispatch model (JavaScript) on PVGIS-ERA5 weather, with its results.</li>
+    <li><b>finance/</b>: the 15-year cash-flow and renewal-reserve model (Python) and its outputs.</li>
+  </ul></div>
+  <div class="limits">
+    <h3>Limits of these results</h3>
+    <ul>
+      <li>Loads are assumed schedules; a 4-week metered baseline replaces them before design freeze (Gate 2).</li>
+      <li>Energy models only: no motor starting, faults, harmonics or phase imbalance.</li>
+      <li>PVGIS is satellite reanalysis; on-site shading and soiling are not yet verified.</li>
+      <li>The ageing model is linear, with generic LFP coefficients. Cell-supplier data will replace them.</li>
+      <li>The inverter is a single point of failure in every model and is not simulated as failing; the mitigation is a spare control board and a 48-hour repair target.</li>
+    </ul>
+  </div>
+
+
+  <h2 id="sources">7. Sources</h2>
+  <ol class="srcs">
+    <li><a href="https://powermin.gov.in/sites/default/files/uploads/LS05022026_Eng.pdf" rel="noopener">Ministry of Power, Lok Sabha Q.87 (5 Feb 2026): rural supply 12.5 h (2014) → 22.6 h (2025)</a></li>
+    <li><a href="https://cdnbbsr.s3waas.gov.in/s3716e1b8c6cd17b771da77391355749f3/uploads/2024/10/20241021925042646.pdf" rel="noopener">MNRE order and guidelines, New Solar Power Scheme for PVTG habitations (18 Oct 2024)</a></li>
+    <li><a href="https://mnre.gov.in/en/pm-janman/" rel="noopener">MNRE PM-JANMAN scheme page and state sanction table</a></li>
+    <li><a href="https://greentechlead.com/solar/india-releases-rs-57-10-crore-for-tribal-solar-program-as-11838-households-gain-off-grid-power-1-39-lakh-pvtg-homes-targeted-54519" rel="noopener">GreentechLead (2 Aug 2026): 11,838 households electrified, ₹57.10 crore released</a></li>
+    <li><a href="https://telanganatoday.com/three-phase-power-supply-to-tribal-hamlets-across-telangana" rel="noopener">Telangana Today (10 May 2022): 182 tribal habitations awaiting three-phase supply</a></li>
+    <li><a href="https://telanganatoday.com/pm-janman-468-pvtg-villages-identified-in-telangana" rel="noopener">Telangana Today (22 Jan 2024): 468 PVTG villages identified in Telangana</a></li>
+    <li><a href="https://nagarkurnool.telangana.gov.in/tribal-development/" rel="noopener">ITDA Mannanur, Nagarkurnool district: Chenchu population and villages</a></li>
+    <li><a href="https://www.downtoearth.org.in/forests/world-earth-day-2026-telanganas-chenchu-adivasis-resist-forcible-relocation-from-amrabad-tiger-reserve" rel="noopener">Down To Earth (22 Apr 2026): Chenchu relocation, power stopped at Sarlapalli</a></li>
+    <li><a href="https://www.eco-business.com/news/assams-rural-solar-scheme-fails-to-keep-the-lights-on/" rel="noopener">Eco-Business / The Third Pole (6 Apr 2023): Assam home solar failures</a></li>
+    <li><a href="https://india.mongabay.com/2022/02/in-odishas-first-solar-village-maintenance-issues-plague-the-mini-solar-plant/" rel="noopener">Mongabay India (4 Feb 2022): Odisha solar village mini-grid failure</a></li>
+    <li><a href="https://mohfw.gov.in/sites/default/files/Unit4ColdChainandLogisticsManagement.pdf" rel="noopener">MoHFW Immunization Handbook, Unit 4: no vaccine storage at sub-centres</a></li>
+    <li><a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en" rel="noopener">EC JRC PVGIS (ERA5 2005–2020 hourly and TMY)</a></li>
+    <li><a href="https://www.powerforall.org/application/files/4415/6700/7650/FS__Mini-grids_costs_can_be_reduced_by_60_by_2030.pdf" rel="noopener">Power for All fact sheet citing World Bank (2019): mini-grid cost per connection and LCOE</a></li>
+    <li><a href="https://www.tgerc.telangana.gov.in/file_upload/uploads/Tariff%20Orders/Current%20Year%20Orders/2026/RST%20Order%20FY%202026-27.pdf" rel="noopener">TGERC Retail Supply Tariff Order FY 2026-27, Table 3-38 (cost of service)</a></li>
+    <li><a href="https://www.thenewsminute.com/telangana/telangana-starts-implementing-gruha-jyothi-scheme" rel="noopener">The News Minute (1 Mar 2024): Gruha Jyothi 200 free units</a></li>
+    <li><a href="https://www.deccanchronicle.com/nation/sweet-hike-for-honey-hunters-885187" rel="noopener">Deccan Chronicle (14 Mar 2024): AP GCC honey price ₹250/kg</a></li>
+    <li><a href="https://www.thehansindia.com/business/market-compass/petrol-and-diesel-prices-today-in-hyderabad-delhi-chennai-and-mumbai-on-20-october-2026-1134118" rel="noopener">The Hans India (20 Oct 2026): diesel ₹103.82/L in Hyderabad</a></li>
+    <li><a href="https://powermore.in/blog/solar-module-prices-up-33-percent-india" rel="noopener">Powermore (12 May 2026): module prices per Wp</a></li>
+    <li><a href="https://lithiuminverter.in/prices/industrial-bess.html" rel="noopener">lithiuminverter.in (May 2026): C&I LFP battery prices per kWh</a></li>
+    <li><a href="https://www.indiamart.com/proddetail/deye-15kw-three-phase-hybrid-solar-inverter-2855572019073.html" rel="noopener">IndiaMART listing: 15 kW three-phase hybrid inverter</a></li>
+    <li><a href="https://en.vikaspedia.in/energy/policy-support/battery-waste-management-rules-2022" rel="noopener">Vikaspedia: Battery Waste Management Rules 2022 (MoEFCC, 24 Aug 2022)</a></li>
+    <li><a href="https://cea.nic.in/regulations-category/measures-relating-to-safety-and-electric-supply/?lang=en" rel="noopener">CEA (Measures relating to Safety and Electric Supply) Regulations 2023</a></li>
+  </ol>
+
+  <footer>
+    <p>Weather: <a href="https://re.jrc.ec.europa.eu/pvg_tools/en/" rel="noopener">PVGIS v5.2, European Commission JRC</a> (ERA5 2005–2020, TMY). Model code: Python 3 (numpy, pandas), MATLAB R2025a and Simulink. All chart data is in section 6. Unit tests 14/14 and 6/6 acceptance gates pass. Code: <a href="Rural_Spark_models.zip">Rural_Spark_models.zip</a> · <a href="https://github.com/Parthasarathy1705/rural-spark">GitHub repository</a>.</p>
+    <p>Rural Spark · Schneider Electric Go Green 2026 · Parthasarathy P, Tanush Pavan Vakalaggada · Amrita Vishwa Vidyapeetham</p>
+  </footer>
+</div>
+
+<script type="application/json" id="rs-data">{"worst_week_hourly": {"d": "Hourly solar, battery % and cumulative essential energy not served, 4 controllers, worst week (Model B, R1 hardware)", "csv": "hour,pv_kw,soc_pct_reactive,soc_pct_static,soc_pct_forecast_aware,soc_pct_oracle,essential_unserved_cum_kwh_reactive,essential_unserved_cum_kwh_static,essential_unserved_cum_kwh_forecast_aware,essential_unserved_cum_kwh_oracle\n0,0.0,67.54,67.35,73.39,73.39,0.0,0.0,0.0,0.0\n1,0.0,66.33,66.15,72.18,72.18,0.0,0.0,0.0,0.0\n2,0.0,65.35,64.75,69.69,69.69,0.0,0.0,0.0,0.0\n3,0.0,65.01,62.76,67.83,67.83,0.0,0.0,0.0,0.0\n4,0.0,63.38,61.55,67.58,67.58,0.0,0.0,0.0,0.0\n5,0.0,61.48,61.29,67.33,67.33,0.0,0.0,0.0,0.0\n6,0.535,61.32,61.14,66.77,66.77,0.0,0.0,0.0,0.0\n7,2.662,64.18,64.0,68.31,68.31,0.0,0.0,0.0,0.0\n8,5.52,71.24,70.02,76.49,76.49,0.0,0.0,0.0,0.0\n9,7.892,80.87,78.62,90.41,90.41,0.0,0.0,0.0,0.0\n10,9.186,93.04,91.95,100.0,100.0,0.0,0.0,0.0,0.0\n11,8.494,100.0,100.0,100.0,100.0,0.0,0.0,0.0,0.0\n12,7.762,100.0,100.0,100.0,100.0,0.0,0.0,0.0,0.0\n13,6.66,100.0,100.0,100.0,100.0,0.0,0.0,0.0,0.0\n14,5.247,100.0,100.0,100.0,100.0,0.0,0.0,0.0,0.0\n15,3.265,100.0,100.0,100.0,100.0,0.0,0.0,0.0,0.0\n16,1.202,99.36,99.81,100.0,100.0,0.0,0.0,0.0,0.0\n17,0.284,95.87,96.32,99.27,99.27,0.0,0.0,0.0,0.0\n18,0.0,93.79,93.42,97.19,97.19,0.0,0.0,0.0,0.0\n19,0.0,90.44,88.41,93.84,93.84,0.0,0.0,0.0,0.0\n20,0.0,83.25,81.77,87.34,87.34,0.0,0.0,0.0,0.0\n21,0.0,76.54,76.71,80.62,80.62,0.0,0.0,0.0,0.0\n22,0.0,72.16,72.47,75.55,75.55,0.0,0.0,0.0,0.0\n23,0.0,70.3,70.61,73.7,73.7,0.0,0.0,0.0,0.0\n24,0.0,68.91,67.84,72.3,72.3,0.0,0.0,0.0,0.0\n25,0.0,67.36,64.92,71.04,71.04,0.0,0.0,0.0,0.0\n26,0.0,64.82,64.03,68.91,68.91,0.0,0.0,0.0,0.0\n27,0.0,63.13,63.58,66.81,66.81,0.0,0.0,0.0,0.0\n28,0.0,62.89,63.33,66.28,66.28,0.0,0.0,0.0,0.0\n29,0.0,62.64,62.39,66.03,66.03,0.0,0.0,0.0,0.0\n30,0.373,62.29,60.4,65.68,65.68,0.0,0.0,0.0,0.0\n31,1.45,62.86,61.09,65.84,65.84,0.0,0.0,0.0,0.0\n32,3.146,63.48,63.27,69.14,69.14,0.0,0.0,0.0,0.0\n33,5.424,69.13,69.44,74.29,74.29,0.0,0.0,0.0,0.0\n34,5.671,74.49,74.8,78.52,78.52,0.0,0.0,0.0,0.0\n35,4.632,76.78,75.51,79.25,80.33,0.0,0.0,0.0,0.0\n36,3.87,80.36,78.06,80.01,81.09,0.0,0.0,0.0,0.0\n37,3.467,83.2,82.45,82.62,82.63,0.0,0.0,0.0,0.0\n38,3.47,86.38,86.8,86.84,86.85,0.0,0.0,0.0,0.0\n39,2.402,89.88,90.29,88.78,88.79,0.0,0.0,0.0,0.0\n40,0.799,89.71,88.75,88.33,88.35,0.0,0.0,0.0,0.0\n41,0.082,85.43,82.83,86.9,86.91,0.0,0.0,0.0,0.0\n42,0.0,81.7,80.47,84.82,84.83,0.0,0.0,0.0,0.0\n43,0.0,76.82,77.11,81.45,81.47,0.0,0.0,0.0,0.0\n44,0.0,70.85,71.14,75.48,75.5,0.0,0.0,0.0,0.0\n45,0.0,65.79,65.66,69.32,69.34,0.0,0.0,0.0,0.0\n46,0.0,61.45,59.67,63.33,63.34,0.0,0.0,0.0,0.0\n47,0.0,58.54,56.49,60.7,60.71,0.0,0.0,0.0,0.0\n48,0.0,55.0,54.59,58.8,58.82,0.0,0.0,0.0,0.0\n49,0.0,52.69,52.97,57.18,57.2,0.0,0.0,0.0,0.0\n50,0.0,51.6,51.88,55.95,55.97,0.0,0.0,0.0,0.0\n51,0.0,50.99,51.28,53.7,53.71,0.0,0.0,0.0,0.0\n52,0.0,50.75,51.03,52.21,52.23,0.0,0.0,0.0,0.0\n53,0.0,48.84,50.77,51.96,51.97,0.0,0.0,0.0,0.0\n54,0.07,46.98,50.29,51.47,51.49,0.0,0.0,0.0,0.0\n55,0.366,46.93,50.24,51.68,51.7,0.0,0.0,0.0,0.0\n56,0.985,45.25,48.56,51.85,51.87,0.0,0.0,0.0,0.0\n57,1.871,47.17,50.48,51.96,51.98,0.0,0.0,0.0,0.0\n58,2.332,49.43,53.64,51.66,51.67,0.0,0.0,0.0,0.0\n59,1.855,44.94,56.69,52.03,52.05,0.0,0.0,0.0,0.0\n60,1.5,36.71,58.01,53.35,53.36,0.0,0.0,0.0,0.0\n61,1.273,34.43,58.73,53.93,53.81,0.0,0.0,0.0,0.0\n62,1.24,34.33,58.62,53.83,52.05,0.0,0.0,0.0,0.0\n63,1.25,34.32,58.89,53.15,51.1,0.0,0.0,0.0,0.0\n64,0.572,32.18,58.4,52.78,50.87,0.0,0.0,0.0,0.0\n65,0.052,26.94,54.39,51.06,49.7,0.0,0.0,0.0,0.0\n66,0.0,25.36,52.82,48.8,48.13,0.0,0.0,0.0,0.0\n67,0.0,22.59,50.05,45.47,43.98,0.0,0.0,0.0,0.0\n68,0.0,20.3,44.98,39.58,37.68,0.529,0.0,0.0,0.0\n69,0.0,20.3,40.41,35.97,35.08,1.561,0.0,0.0,0.0\n70,0.0,20.3,37.32,34.26,33.36,2.243,0.0,0.0,0.0\n71,0.0,20.3,36.72,33.66,32.77,2.479,0.0,0.0,0.0\n72,0.0,20.3,36.4,33.34,32.45,2.608,0.0,0.0,0.0\n73,0.0,20.3,36.14,33.08,32.19,2.711,0.0,0.0,0.0\n74,0.0,20.3,35.89,32.83,31.94,2.81,0.0,0.0,0.0\n75,0.0,20.3,35.64,32.59,31.69,2.908,0.0,0.0,0.0\n76,0.0,20.3,35.39,32.34,31.44,3.006,0.0,0.0,0.0\n77,0.0,20.3,35.14,32.08,31.18,3.109,0.0,0.0,0.0\n78,0.021,20.32,34.49,31.43,30.53,3.374,0.0,0.0,0.0\n79,0.349,20.63,34.23,31.43,30.53,3.504,0.0,0.0,0.0\n80,0.814,22.11,32.71,32.67,31.78,3.603,0.0,0.0,0.0\n81,1.024,24.4,34.74,34.71,33.81,3.709,0.0,0.0,0.0\n82,2.313,24.38,37.89,37.61,36.72,3.738,0.0,0.0,0.0\n83,2.159,26.44,44.2,41.26,40.36,3.738,0.0,0.0,0.0\n84,1.4,24.79,47.17,44.22,43.32,3.738,0.0,0.0,0.0\n85,1.648,23.37,50.29,47.6,46.71,3.738,0.0,0.0,0.0\n86,1.863,22.37,50.9,49.53,50.09,3.738,0.0,0.0,0.0\n87,2.292,22.31,52.4,46.64,49.77,3.738,0.0,0.0,0.0\n88,1.474,23.42,54.16,47.09,47.42,3.738,0.0,0.0,0.0\n89,0.272,20.06,50.79,46.15,46.48,3.738,0.0,0.0,0.0\n90,0.0,20.18,48.72,44.08,44.41,3.875,0.0,0.0,0.0\n91,0.0,20.18,45.45,40.81,41.14,4.423,0.0,0.0,0.0\n92,0.0,20.18,39.93,36.58,36.65,5.436,0.0,0.0,0.0\n93,0.0,20.18,36.26,33.93,34.0,6.49,0.0,0.0,0.0\n94,0.0,20.18,34.27,31.94,32.01,7.281,0.0,0.0,0.0\n95,0.0,20.18,33.57,31.24,31.31,7.559,0.0,0.0,0.0\n96,0.0,20.18,33.31,30.98,31.05,7.66,0.0,0.0,0.0\n97,0.0,20.18,33.07,30.74,30.8,7.758,0.0,0.0,0.0\n98,0.0,20.18,32.82,30.49,30.56,7.857,0.0,0.0,0.0\n99,0.0,20.18,32.57,30.24,30.31,7.955,0.0,0.0,0.0\n100,0.0,20.18,32.32,29.99,30.06,8.054,0.0,0.0,0.0\n101,0.0,20.18,32.07,29.74,29.81,8.153,0.0,0.0,0.0\n102,0.029,20.2,31.5,29.17,29.24,8.388,0.0,0.0,0.0\n103,0.225,20.44,31.18,29.1,29.17,8.517,0.0,0.0,0.0\n104,0.794,21.57,29.28,30.0,30.07,8.615,0.0,0.0,0.0\n105,2.459,25.11,32.59,33.3,33.37,8.714,0.0,0.0,0.0\n106,3.656,29.56,40.34,41.05,41.12,8.714,0.0,0.0,0.0\n107,3.172,34.3,48.38,49.1,49.16,8.714,0.0,0.0,0.0\n108,4.211,38.17,54.25,53.28,49.74,8.714,0.0,0.0,0.0\n109,5.338,46.31,63.94,58.5,50.69,8.714,0.0,0.0,0.0\n110,5.042,54.45,67.73,63.62,55.45,8.714,0.0,0.0,0.0\n111,3.322,60.83,65.43,65.72,61.83,8.714,0.0,0.0,0.0\n112,1.349,62.05,62.38,62.57,62.77,8.714,0.0,0.0,0.0\n113,0.371,58.93,57.61,60.64,60.84,8.714,0.0,0.0,0.0\n114,0.0,56.88,54.33,56.94,57.14,8.714,0.0,0.0,0.0\n115,0.0,53.53,51.12,52.08,52.28,8.714,0.0,0.0,0.0\n116,0.0,46.46,45.7,45.28,45.49,8.714,0.0,0.0,0.0\n117,0.0,40.13,40.74,40.32,40.53,8.714,0.0,0.0,0.0\n118,0.0,35.67,37.03,36.83,37.03,8.714,0.0,0.0,0.0\n119,0.0,33.61,36.33,36.12,36.33,8.714,0.0,0.0,0.0\n120,0.0,31.95,36.03,35.83,36.03,8.714,0.0,0.0,0.0\n121,0.0,29.51,35.78,35.57,35.78,8.714,0.0,0.0,0.0\n122,0.0,26.85,35.53,35.33,35.53,8.714,0.0,0.0,0.0\n123,0.0,25.72,35.28,35.08,35.28,8.714,0.0,0.0,0.0\n124,0.0,25.48,35.04,34.83,35.04,8.714,0.0,0.0,0.0\n125,0.0,25.13,34.69,34.48,34.69,8.714,0.0,0.0,0.0\n126,0.164,24.59,34.15,33.95,34.15,8.714,0.0,0.0,0.0\n127,0.428,23.2,34.39,34.44,34.64,8.714,0.0,0.0,0.0\n128,1.931,20.61,33.67,36.46,36.67,8.714,0.0,0.0,0.0\n129,4.913,26.96,41.6,44.15,44.35,8.714,0.0,0.0,0.0\n130,5.123,35.65,54.31,53.39,53.59,8.714,0.0,0.0,0.0\n131,5.894,39.28,63.62,59.49,61.12,8.714,0.0,0.0,0.0\n132,6.09,46.18,70.52,64.62,66.96,8.714,0.0,0.0,0.0\n133,5.429,51.71,70.34,70.16,71.08,8.714,0.0,0.0,0.0\n134,5.302,61.75,76.62,75.73,75.93,8.714,0.0,0.0,0.0\n135,4.616,70.57,83.89,78.73,78.93,8.714,0.0,0.0,0.0\n136,2.666,77.09,88.86,83.23,83.43,8.714,0.0,0.0,0.0\n137,0.533,74.27,85.21,83.09,83.29,8.714,0.0,0.0,0.0\n138,0.0,70.62,81.57,81.09,81.3,8.714,0.0,0.0,0.0\n139,0.0,66.61,76.72,77.9,78.1,8.714,0.0,0.0,0.0\n140,0.0,60.88,69.35,72.18,72.38,8.714,0.0,0.0,0.0\n141,0.0,55.9,62.85,67.19,67.4,8.714,0.0,0.0,0.0\n142,0.0,52.55,59.51,63.02,63.22,8.714,0.0,0.0,0.0\n143,0.0,50.02,58.48,60.34,60.55,8.714,0.0,0.0,0.0\n144,0.0,47.76,57.74,59.05,59.26,8.714,0.0,0.0,0.0\n145,0.0,47.02,56.58,58.31,58.51,8.714,0.0,0.0,0.0\n146,0.0,46.35,54.67,57.64,57.84,8.714,0.0,0.0,0.0\n147,0.0,45.99,54.32,57.28,57.48,8.714,0.0,0.0,0.0\n148,0.0,44.93,53.94,55.26,55.46,8.714,0.0,0.0,0.0\n149,0.0,42.99,53.65,53.45,53.66,8.714,0.0,0.0,0.0\n150,0.202,41.76,53.25,53.05,53.26,8.714,0.0,0.0,0.0\n151,1.31,42.71,54.21,54.25,54.45,8.714,0.0,0.0,0.0\n152,2.768,44.52,56.01,58.73,58.93,8.714,0.0,0.0,0.0\n153,3.222,48.36,61.54,63.09,63.29,8.714,0.0,0.0,0.0\n154,3.858,47.74,66.78,66.78,66.98,8.714,0.0,0.0,0.0\n155,5.239,49.54,68.35,73.33,73.18,8.714,0.0,0.0,0.0\n156,7.376,57.01,69.98,83.01,78.59,8.714,0.0,0.0,0.0\n157,8.238,71.35,81.7,88.74,83.96,8.714,0.0,0.0,0.0\n158,6.391,85.72,94.78,92.29,91.78,8.714,0.0,0.0,0.0\n159,4.204,93.08,100.0,99.32,99.53,8.714,0.0,0.0,0.0\n160,2.096,95.92,100.0,100.0,100.0,8.714,0.0,0.0,0.0\n161,0.442,93.42,97.49,99.68,99.68,8.714,0.0,0.0,0.0\n162,0.0,91.38,95.45,97.64,97.64,8.714,0.0,0.0,0.0\n163,0.0,87.9,90.74,94.31,94.31,8.714,0.0,0.0,0.0\n164,0.0,80.22,83.06,86.63,86.63,8.714,0.0,0.0,0.0\n165,0.0,73.9,77.98,80.17,80.17,8.714,0.0,0.0,0.0\n166,0.0,70.77,74.85,77.04,77.04,8.714,0.0,0.0,0.0\n167,0.0,69.5,73.58,75.77,75.77,8.714,0.0,0.0,0.0\n"}, "model_b_results": {"d": "Full Model B results: worst week, typical year and three stress years, 4 controllers, 15 metrics", "csv": "case,controller,essential_supply_pct,essential_blackouts,longest_blackout_min,essential_unserved_kwh,comfort_served_pct,processing_kwh,batches_spoiled,cold_store_out_of_range_h,curtailments_announced_pct,mean_notice_min,max_relay_changes_per_day,equiv_full_cycles_per_yr,year_capacity_reaches_80pct,surplus_solar_unused_kwh,pv_generation_kwh\nWorst week (7 days),reactive,82.29,2.0,960.0,11.17,88.68,72.76,1.0,24.5,0.0,0.0,0.0,118.29,9.56,20.02,240.89\nWorst week (7 days),static,100.0,0.0,0.0,0.0,84.15,62.21,0.0,86.75,0.0,0.0,4.0,121.74,9.48,22.42,240.89\nWorst week (7 days),forecast_aware,100.0,0.0,0.0,0.0,81.32,67.4,0.0,47.5,85.0,628.75,16.0,107.37,9.82,22.3,240.89\nWorst week (7 days),oracle,100.0,0.0,0.0,0.0,80.87,67.84,0.0,45.33,73.33,569.0,6.0,106.25,9.85,22.39,240.89\nTypical year,reactive,99.13,9.0,960.0,27.17,99.52,5782.97,3.0,50.25,0.0,0.0,0.0,127.04,9.37,12494.26,27308.76\nTypical year,static,100.0,0.0,0.0,0.0,99.35,5743.61,2.0,271.5,0.0,0.0,4.0,126.39,9.38,12524.21,27308.76\nTypical year,forecast_aware,100.0,0.0,0.0,0.0,99.25,5847.75,0.0,99.25,54.29,417.21,16.0,117.93,9.57,12458.88,27308.76\nTypical year,oracle,100.0,0.0,0.0,0.0,99.3,5856.28,0.0,101.0,47.17,357.45,7.0,117.5,9.58,12448.67,27308.76\n\"Year, battery at 80%\",reactive,98.72,16.0,975.0,37.13,99.41,5752.46,4.0,64.75,0.0,0.0,0.0,126.45,9.38,12530.83,27308.76\n\"Year, battery at 80%\",static,100.0,0.0,0.0,0.0,98.95,5704.08,2.0,519.75,0.0,0.0,6.0,123.38,9.45,12594.64,27308.76\n\"Year, battery at 80%\",forecast_aware,100.0,0.0,0.0,0.0,99.1,5806.26,0.0,120.25,26.95,208.02,8.0,117.26,9.59,12510.5,27308.76\n\"Year, battery at 80%\",oracle,100.0,0.0,0.0,0.0,99.09,5820.03,0.0,110.75,23.03,178.82,8.0,116.63,9.6,12498.82,27308.76\n\"Year, 1 of 4 PV strings down\",reactive,96.83,41.0,1080.0,87.95,98.44,5624.38,15.0,173.0,0.0,0.0,0.0,131.6,9.27,5813.79,20406.82\n\"Year, 1 of 4 PV strings down\",static,100.0,0.0,0.0,0.0,97.31,5536.31,13.0,941.0,0.0,0.0,6.0,131.37,9.27,5896.6,20406.82\n\"Year, 1 of 4 PV strings down\",forecast_aware,100.0,0.0,0.0,0.0,97.47,5680.8,0.0,348.5,60.19,479.13,17.0,119.4,9.54,5820.06,20406.82\n\"Year, 1 of 4 PV strings down\",oracle,100.0,0.0,0.0,0.0,97.28,5710.48,0.0,361.75,40.33,318.15,10.0,117.7,9.58,5805.53,20406.82\n\"Year, demand +20%\",reactive,97.67,31.0,1020.0,81.1,98.82,6843.52,9.0,117.0,0.0,0.0,0.0,154.2,8.81,9699.12,27308.76\n\"Year, demand +20%\",static,100.0,0.0,0.0,0.0,97.98,6728.59,8.0,786.25,0.0,0.0,5.0,152.63,8.84,9787.02,27308.76\n\"Year, demand +20%\",forecast_aware,100.0,0.0,0.0,0.0,98.32,6865.17,0.0,229.5,43.56,350.72,11.0,142.23,9.05,9702.11,27308.76\n\"Year, demand +20%\",oracle,100.0,0.0,0.0,0.0,98.14,6907.29,0.0,254.0,31.77,245.0,10.0,140.57,9.08,9676.05,27308.76\n"}, "model_a_controllers": {"d": "Model A, 16 years hourly: essential-shortfall days and energy delivered per controller", "csv": "controller,essential_shortfall_days_per_yr,share_of_all_energy_delivered_pct\nNo priority rule,42.5,97.0\nE1 fixed SoC floors,6.9,94.0\nEnergy budget (offline forecast),0.6,95.2\nEnergy budget + weather forecast (\u00b135% error),0,95.2\n"}, "model_a_monthly_yield": {"d": "Site PV yield by month, mean and P10 (PVGIS-ERA5 2005\u20132020, after 14% losses)", "csv": "month,mean_kwh_per_kwp_day,p10_kwh_per_kwp_day\nJan,4.68,3.66\nFeb,4.98,4.09\nMar,4.94,4.19\nApr,4.61,4.17\nMay,4.38,3.93\nJun,3.44,2.03\nJul,2.88,1.53\nAug,3.01,1.62\nSep,3.3,1.75\nOct,3.82,2.09\nNov,4.0,2.14\nDec,4.3,3.04\n"}, "simulink_verification": {"d": "Simulink vs bp_step.m vs Python, 16 replay profiles (run in MATLAB R2025a)", "csv": "case,steps,soc_vs_python,soc_vs_bp_step,P_vs_bp_step,Tcell_vs_bp_step,pass\nS1_forecast_aware,4032,6.73003874851474e-11,3.33066907387547e-16,5.49560397189452e-14,7.105427357601e-15,1\nS1_oracle,4032,6.83659795441827e-11,3.33066907387547e-16,5.49560397189452e-14,1.06581410364015e-14,1\nS1_reactive,4032,7.12835901417463e-11,2.22044604925031e-16,5.50670620214078e-14,1.4210854715202e-14,1\nS1_static,4032,7.00750568682906e-11,2.22044604925031e-16,5.48450174164827e-14,7.105427357601e-15,1\nS2_forecast_aware,4032,9.14959774611646e-11,1.11022302462516e-16,2.75335310107039e-14,7.105427357601e-15,1\nS2_oracle,4032,8.51003711943576e-11,1.11022302462516e-16,2.75335310107039e-14,7.105427357601e-15,1\nS2_reactive,4032,9.44038736072628e-11,1.11022302462516e-16,2.74780198594726e-14,1.4210854715202e-14,1\nS2_static,4032,7.19289072748097e-11,2.22044604925031e-16,5.50670620214078e-14,1.4210854715202e-14,1\nS3_forecast_aware,4032,8.93651264100015e-11,2.22044604925031e-16,5.48450174164827e-14,7.105427357601e-15,1\nS3_oracle,4032,8.62823146263736e-11,2.22044604925031e-16,5.50670620214078e-14,7.105427357601e-15,1\nS3_reactive,4032,9.7188868064535e-11,2.22044604925031e-16,5.49560397189452e-14,1.06581410364015e-14,1\nS3_static,4032,7.56418261360636e-11,3.33066907387547e-16,5.50670620214078e-14,7.105427357601e-15,1\nS4_forecast_aware,36384,9.37712130166801e-11,4.44089209850063e-16,3.67483821150927e-14,1.4210854715202e-14,1\nS4_oracle,36384,1.04052433336221e-10,4.44089209850063e-16,4.57411886145564e-14,1.06581410364015e-14,1\nS4_reactive,36384,1.26792354393501e-10,5.55111512312578e-16,4.59632332194815e-14,1.4210854715202e-14,1\nS4_static,36384,1.26764987395944e-10,4.44089209850063e-16,3.68594044175552e-14,1.4210854715202e-14,1\n"}, "capex": {"d": "Capital cost lines: base, optimistic, pessimistic (INR)", "csv": "item,base_inr,optimistic_inr,pessimistic_inr\nPV modules 34 x 540 Wp (18.36 kWp),477360,403920,587520\n\"HDG ground-mount structure, foundations, array fence\",119340,100980,146880\n\"15 kW 3-phase hybrid PCS, island/grid-forming, HV battery\",260000,220000,350000\n\"40.96 kWh HV LFP battery with BMS, rack, switchgear\",819200,655360,1064960\n\"EMS controller, gateway/GSM, HMI, sensors; 30 smart meters; 25 household essential/flexible branch controls\",210000,170000,260000\n\"LT 415/240 V ABC network (~800 m), poles, service drops, DBs, protection, SPD, earthing\",420000,300000,550000\n\"Battery/PCS enclosure, fire & lightning protection, signage\",140000,110000,180000\n\"Transport (~150 km incl. forest road), installation, testing, commissioning, design review\",180000,140000,240000\n\"Baseline survey, co-design workshops, operator training\",80000,60000,100000\ncontingency,270590,151218,521904\ntotal,2976490,2311478,4001264\nper_connection,99216,77049,133375\n"}, "renewal_reserve": {"d": "Renewal reserve by year, 4 finance scenarios (INR)", "csv": "year,reserve_inr_base,reserve_inr_optimistic,reserve_inr_pessimistic,reserve_inr_tariff_only\n1,84504,102204,48660,33984\n2,176738,216010,99539,70646\n3,277237,342405,152621,110137\n4,386568,482448,207873,152614\n5,505334,637280,265251,198241\n6,589503,764509,277854,202519\n7,679510,904487,286818,205384\n8,685669,968267,201535,116615\n9,782908,1131577,195934,110570\n10,886645,1310707,-1230610,102060\n11,997216,1506942,-1260074,90775\n12,854973,1501661,-1296170,-183628\n13,145483,1723146,-1339443,-1025301\n14,213038,1391958,-1390473,-1050594\n15,284982,1622229,-1449880,-1078917\n"}, "base_cashflow": {"d": "Base-case 15-year cash flow (INR)", "csv": "year,billed,parity,collected,opex,renewals,event,closing_reserve\n1,121200,45000,156504,72000,0,,84504\n2,126048,46800,162764,75600,0,,176738\n3,131090,48672,169275,79380,0,,277237\n4,136334,50619,176046,83349,0,,386568\n5,141787,52644,183088,87516,0,,505334\n6,147458,54749,190411,136562,0,,589503\n7,153357,56939,198027,143390,0,,679510\n8,159491,59217,205949,150560,90000,controls/meters,685669\n9,165871,61586,214187,158088,0,,782908\n10,172505,64049,222754,165992,0,,886645\n11,179406,66611,231664,174292,0,,997216\n12,186582,69275,240931,183006,260000,PCS,854973\n13,194045,72046,250568,192157,819200,battery,145483\n14,201807,74928,260591,201764,0,,213038\n15,209879,77925,271014,211853,0,,284982\n"}, "kpis": {"d": "Headline finance outputs", "csv": "metric,value\nlcoe_inr_per_kwh_base,39.03\noperator_npv_8pct_grant_capex_inr,162282\nproject_npv_8pct_full_capex_inr,-2814208\nsimple_payback_years_full_capex,35.2\nfunding_gap_inr,1326490\ny1_opex_cover_base,2.17\n"}}</script>
+<script>
+(function(){
+  var D=JSON.parse(document.getElementById('rs-data').textContent), host=document.getElementById('datasets');
+  function parseCSV(t){var out=[],row=[],f='',q=false;for(var i=0;i<t.length;i++){var ch=t[i];
+    if(q){if(ch=='"'){if(t[i+1]=='"'){f+='"';i++;}else q=false;}else f+=ch;}
+    else if(ch=='"')q=true;else if(ch==','){row.push(f);f='';}else if(ch=='\n'){row.push(f);out.push(row);row=[];f='';}else f+=ch;}
+    row.push(f);out.push(row);return out;}
+
+  Object.keys(D).forEach(function(k){
+    var rows=parseCSV(D[k].csv.trim());
+    var det=document.createElement('details'); det.className='ds'; det.id='data-'+k;
+    var sum=document.createElement('summary');
+    sum.innerHTML='<code>'+k+'.csv</code> <span class="dsd"></span> <span class="dsn">'+(rows.length-1)+' rows</span>';
+    sum.querySelector('.dsd').textContent=D[k].d; det.appendChild(sum);
+    var bar=document.createElement('div'); bar.className='dsbar';
+    var btn=document.createElement('button'); btn.type='button'; btn.id='copy-'+k; btn.textContent='Copy CSV';
+    var ta=document.createElement('textarea'); ta.readOnly=true; ta.value=D[k].csv; ta.setAttribute('aria-label',k+' CSV'); ta.hidden=true;
+    btn.addEventListener('click',function(){
+      var done=function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy CSV';},1600);};
+      try{navigator.clipboard.writeText(D[k].csv).then(done,function(){ta.hidden=false;ta.select();btn.textContent='Select all and copy';});}
+      catch(e){ta.hidden=false;ta.select();btn.textContent='Select all and copy';}
+    });
+    bar.appendChild(btn); det.appendChild(bar); det.appendChild(ta);
+    var wrap=document.createElement('div'); wrap.className='tbl'; var t=document.createElement('table');
+    var th=document.createElement('thead'), tr=document.createElement('tr');
+    rows[0].forEach(function(h){var c=document.createElement('th');c.textContent=h;tr.appendChild(c);}); th.appendChild(tr); t.appendChild(th);
+    var tb=document.createElement('tbody');
+    rows.slice(1,13).forEach(function(r){var tr=document.createElement('tr');r.forEach(function(v){var c=document.createElement('td');c.textContent=v;tr.appendChild(c);});tb.appendChild(tr);});
+    t.appendChild(tb); wrap.appendChild(t); det.appendChild(wrap);
+    if(rows.length>13){var p=document.createElement('p');p.className='note';p.textContent='Showing 12 of '+(rows.length-1)+' rows. Copy CSV for all of them.';det.appendChild(p);}
+    host.appendChild(det);
+  });
+})();
+</script>
+</body>
+</html>
