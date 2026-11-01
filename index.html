@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en" data-theme="forest">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rural Spark · Evidence Book</title>
+<meta name="description" content="Rural Spark: a community-owned solar mini-grid for a Chenchu (PVTG) hamlet in Amrabad, Telangana. Simulations, MATLAB/Simulink battery model, finance model, data and sources. Schneider Electric Go Green 2026, Phase 2.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --font-head:"Sora","Segoe UI",Arial,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",Arial,sans-serif;
+  --font-mono:"IBM Plex Mono",Consolas,monospace;
+}
+/* Four background themes, picked from the swatches in the top bar */
+html[data-theme="forest"]{--bg:#0B2416;--bg2:#103320;--card:#FFFFFF;--ink:#F3FAF5;--ink2:#B9D6C2;--accent:#3DCD58;--accentInk:#062012;--line:rgba(255,255,255,.14);--cardInk:#13251A;--cardInk2:#53655A;--chip:#E3F5E7;--glow:radial-gradient(1200px 700px at 85% 10%,#1E7A3A55,transparent 60%),radial-gradient(900px 600px at 0% 100%,#3DCD5822,transparent 60%)}
+html[data-theme="ivory"]{--bg:#F6F3EC;--bg2:#ECE7DC;--card:#FFFFFF;--ink:#1A2A20;--ink2:#5A6A60;--accent:#00843A;--accentInk:#FFFFFF;--line:rgba(0,0,0,.10);--cardInk:#1A2A20;--cardInk2:#5A6A60;--chip:#E3F1E7;--glow:radial-gradient(1000px 600px at 90% 0%,#00953018,transparent 60%)}
+html[data-theme="midnight"]{--bg:#0C1220;--bg2:#121A2C;--card:#FFFFFF;--ink:#EEF2FA;--ink2:#A8B3C9;--accent:#5BE38A;--accentInk:#07130C;--line:rgba(255,255,255,.12);--cardInk:#141B2A;--cardInk2:#58627A;--chip:#E6F7EC;--glow:radial-gradient(1100px 700px at 80% 0%,#2A4A8A44,transparent 60%),radial-gradient(800px 600px at 0% 100%,#5BE38A1A,transparent 60%)}
+html[data-theme="solar"]{--bg:#2A1A06;--bg2:#3A250B;--card:#FFFDF7;--ink:#FFF6E6;--ink2:#E6C99A;--accent:#F5B82E;--accentInk:#2A1A06;--line:rgba(255,255,255,.14);--cardInk:#2A1F10;--cardInk2:#6E5C40;--chip:#FDF0D2;--glow:radial-gradient(1100px 700px at 85% 5%,#F5B82E33,transparent 60%),radial-gradient(900px 600px at 0% 100%,#E0662E22,transparent 60%)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);background-image:var(--glow);background-attachment:fixed;color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.55;transition:background-color .4s,color .4s}
+a{color:inherit}
+img{max-width:100%;display:block}
+/* top bar */
+.bar{position:fixed;inset:0 0 auto 0;z-index:20;display:flex;align-items:center;gap:16px;padding:12px max(18px,env(safe-area-inset-left,0px)) 12px max(18px,env(safe-area-inset-right,0px));background:linear-gradient(var(--bg),transparent);}
+.brand{font-family:var(--font-head);font-weight:800;letter-spacing:.02em;font-size:16px;white-space:nowrap}
+.brand span{color:var(--accent)}
+.dots{display:flex;gap:6px;flex:1;justify-content:center;flex-wrap:wrap}
+.dots a{width:9px;height:9px;border-radius:50%;background:var(--line);border:1px solid var(--ink2);opacity:.6;transition:all .25s}
+.dots a.on{background:var(--accent);border-color:var(--accent);opacity:1;width:24px;border-radius:6px}
+.themes{display:flex;gap:6px;align-items:center}
+.themes span{font-size:12px;color:var(--ink2);margin-right:4px;font-family:var(--font-mono)}
+.themes button{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
+.themes button[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:2px}
+.themes button:focus-visible,.dots a:focus-visible,.navbtn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+/* progress */
+.prog{position:fixed;left:0;top:0;height:3px;background:var(--accent);z-index:30;width:0;transition:width .2s}
+/* pages */
+main{height:100vh;overflow-y:auto;scroll-snap-type:y mandatory;scroll-behavior:smooth}
+.page{min-height:100vh;scroll-snap-align:start;display:flex;align-items:center;padding:84px max(22px,env(safe-area-inset-right,0px)) 56px max(22px,env(safe-area-inset-left,0px))}
+.wrap{width:100%;max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.55fr);gap:44px;align-items:center}
+.page.flip .wrap{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)}
+.page.flip .text{order:2}
+@media (max-width:900px){.wrap,.page.flip .wrap{grid-template-columns:minmax(0,1fr);gap:22px}.page.flip .text{order:0}}
+.num{font-family:var(--font-mono);font-size:13px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}
+h1,h2{font-family:var(--font-head);margin:.25em 0 .35em;line-height:1.12;text-wrap:balance}
+h1{font-size:clamp(40px,6vw,76px);font-weight:800}
+h2{font-size:clamp(26px,3.2vw,40px);font-weight:700}
+.lead{font-size:clamp(17px,1.5vw,20px);color:var(--ink2);max-width:36em}
+.text p{color:var(--ink2);max-width:34em}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0 18px}
+.stats.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stat{border-top:3px solid var(--accent);padding-top:8px}
+.stat b{display:block;font-family:var(--font-head);font-size:clamp(22px,2.4vw,30px);font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:14px;color:var(--ink2);line-height:1.35;display:block;margin-top:4px}
+.fig{background:var(--card);border-radius:16px;padding:14px;box-shadow:0 24px 60px rgba(0,0,0,.25);min-width:0}
+.fig img{border-radius:8px;width:100%;height:auto}
+.fig figcaption{color:var(--cardInk2);font-size:14px;margin:10px 4px 2px}
+.fig figcaption b{color:var(--cardInk)}
+.tag{display:inline-block;font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.08em;padding:3px 8px;border-radius:4px;background:var(--chip);color:#1B5E32;margin-right:6px;vertical-align:middle}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:15px;text-decoration:none;padding:10px 16px;border-radius:999px;background:var(--accent);color:var(--accentInk);border:0}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn:hover{filter:brightness(1.08)}
+/* cover */
+.cover .wrap{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}
+.specs{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:18px;margin:22px 0}
+@media (max-width:600px){.specs{grid-template-columns:repeat(2,auto)}}
+.specs div{border-left:3px solid var(--accent);padding-left:10px}
+.specs b{font-family:var(--font-head);font-size:20px;display:block;white-space:nowrap}
+.specs span{font-size:14px;color:var(--ink2)}
+.team{font-size:15px;color:var(--ink2);margin-top:14px}
+.team b{color:var(--ink)}
+.hint{font-family:var(--font-mono);font-size:12px;color:var(--ink2);margin-top:26px;opacity:.8}
+/* list pages */
+.full .wrap{grid-template-columns:minmax(0,1fr)}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.cardl{background:var(--card);color:var(--cardInk);border-radius:14px;padding:16px 18px;text-decoration:none;display:block;min-width:0}
+.cardl b{font-family:var(--font-mono);font-size:14px;display:block;color:var(--cardInk);word-break:break-word}
+.cardl span{font-size:14px;color:var(--cardInk2);display:block;margin-top:4px}
+.cardl:hover{transform:translateY(-2px);transition:transform .15s}
+ol.src{columns:2;column-gap:36px;padding-left:22px;margin-top:16px;font-size:15px}
+@media (max-width:900px){ol.src{columns:1}}
+ol.src li{break-inside:avoid;margin-bottom:8px;color:var(--ink2)}
+ol.src a{color:var(--ink);text-decoration-color:var(--accent);text-underline-offset:3px}
+.note{font-size:14px;color:var(--ink2);border-left:3px solid var(--accent);padding-left:12px;margin-top:18px}
+.navbtn{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:20;display:flex;flex-direction:column;gap:8px}
+.navbtn button{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);background:var(--bg2);color:var(--ink);font-size:18px;cursor:pointer}
+@media (max-width:700px){.dots,.themes span{display:none}.bar{justify-content:space-between}}
+footer{font-size:13px;color:var(--ink2);margin-top:26px}
+@media (prefers-reduced-motion:reduce){main{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="prog" id="prog"></div>
+<header class="bar">
+  <div class="brand">RURAL <span>SPARK</span></div>
+  <nav class="dots" id="dots" aria-label="Pages"></nav>
+  <div class="themes" role="group" aria-label="Background colour">
+    <span>Theme</span>
+    <button type="button" data-t="forest" title="Forest" style="background:#0B2416"></button>
+    <button type="button" data-t="ivory" title="Ivory" style="background:#F6F3EC"></button>
+    <button type="button" data-t="midnight" title="Midnight" style="background:#0C1220"></button>
+    <button type="button" data-t="solar" title="Solar" style="background:#B8791C"></button>
+  </div>
+</header>
+
+<main id="book">
+
+<section class="page cover" id="home" data-title="Home">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">Schneider Electric Go Green 2026 · Phase 2</div>
+      <h1>Rural Spark</h1>
+      <p class="lead">A community-owned solar mini-grid that keeps a Chenchu forest hamlet’s essential services on through the monsoon, powers its school, water and livelihoods, and pays for its own renewal.</p>
+      <div class="specs">
+        <div><b>18.36 kWp</b><span>solar PV</span></div>
+        <div><b>40.96 kWh</b><span>LFP storage</span></div>
+        <div><b>15 kW</b><span>3-phase, grid-ready</span></div>
+        <div><b>30</b><span>metered connections</span></div>
+      </div>
+      <div class="team"><b>Parthasarathy P</b> · <b>Tanush Pavan Vakalaggada</b><br>Amrita Vishwa Vidyapeetham, India</div>
+      <p class="hint">Scroll, use ↑ ↓, or tap the dots to turn the page. Change the background with the theme swatches.</p>
+    </div>
+    <figure class="fig"><img src="hero.gif" alt="Animated illustration of one evening in the pilot hamlet: homes, health sub-centre, school, water and processing unit light up as the battery discharges"><figcaption><b>One evening in the pilot hamlet.</b> Illustration, not a site plan. The battery level follows our 16-year simulation on 20 Oct 2013.</figcaption></figure>
+  </div>
+</section>
+
+<section class="page flip" id="gap" data-title="The energy gap">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">01 · The energy gap</div>
+      <h2>The grid cannot reach these homes, and the off-grid fix is 12% done</h2>
+      <p>India’s rural grid supplied 22.6 hours a day in 2025. For one lakh tribal and PVTG homes the grid is not feasible, so they are served off-grid. By 30 June 2026, 11,838 had been electrified.</p>
+      <div class="stats">
+        <div class="stat"><b>11,838</b><span>of 1,00,000 off-grid homes done</span></div>
+        <div class="stat"><b>14,371</b><span>Chenchu people in 150 villages (ITDA)</span></div>
+        <div class="stat"><b>182</b><span>Telangana habitations awaiting 3-phase lines (2022)</span></div>
+      </div>
+      <div class="links"><a class="btn ghost" href="#sources">See sources</a></div>
+    </div>
+    <figure class="fig" style="max-width:420px;justify-self:center;width:100%"><img src="progress.gif" alt="Animated ring filling to 12 percent: 11,838 of 1,00,000 off-grid PVTG homes electrified"><figcaption><b>Progress of the off-grid PVTG programme</b>, 30 Jun 2026.</figcaption></figure>
+  </div>
+</section>
+
+<section class="page" id="worst-week" data-title="Worst week"><span id="animations"></span>
+  <div class="wrap">
+    <div class="text">
+      <div class="num">02 · The darkest week of the year</div>
+      <h2>A typical inverter goes dark. Rural Spark keeps every essential load on</h2>
+      <p>Seven days around the three darkest consecutive days of the typical year, simulated every 5 minutes on the final hardware. Four controllers see the same sun and the same demand.</p>
+      <div class="stats">
+        <div class="stat"><b>82% → 100%</b><span>essential supply, typical inverter vs ours</span></div>
+        <div class="stat"><b>8.7 kWh → 0</b><span>lights, phones and health-centre energy lost</span></div>
+        <div class="stat"><b>85%</b><span>of curtailments announced ~10.5 h ahead</span></div>
+      </div>
+      <div class="links"><span class="tag">SIMULATED</span><a class="btn" href="worst_week_hourly.csv" download>Download the data</a></div>
+    </div>
+    <figure class="fig"><img src="week.gif" alt="Animated worst-week replay: solar output, battery state of charge and essential energy not served for four controllers"><figcaption><b>Top:</b> solar. <b>Middle:</b> battery %. <b>Bottom:</b> essential energy not served. Red = typical inverter, green = Rural Spark.</figcaption></figure>
+  </div>
+</section>
+
+<section class="page flip" id="model-a" data-title="Worst 9 days">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">03 · Sixteen years of real weather</div>
+      <h2>The worst nine days on record: 22 dark evening hours become zero</h2>
+      <p>Hourly satellite weather for the site, 2005–2020. In October 2013 the sun failed for days. Without a priority rule the battery hits its floor on five evenings. The energy budget sheds comfort load in the daytime so the night stays lit.</p>
+      <div class="stats two">
+        <div class="stat"><b>22 h → 0 h</b><span>evening hours dark, no rule vs energy budget</span></div>
+        <div class="stat"><b>140,256</b><span>hours simulated</span></div>
+      </div>
+      <div class="links"><span class="tag">SIMULATED</span></div>
+    </div>
+    <figure class="fig"><img src="worst9.gif" alt="Animated battery state of charge over 20 to 28 October 2013 with and without the energy budget, with dark evening hours below"><figcaption><b>20–28 Oct 2013.</b> Grey = no priority rule, green = Rural Spark energy budget. Boxes show each evening.</figcaption></figure>
+  </div>
+</section>
+
+<section class="page" id="shortfall" data-title="Controller">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">04 · The innovation</div>
+      <h2>Same panels, same battery: essential failures fall from 42 days a year to under one</h2>
+      <p>Every hour the controller works out how much energy tonight’s essentials need, looks one day ahead using yesterday’s sun (so it works offline), and lets comfort and processing loads use only what is left. Tier 1 is never shed by software.</p>
+      <div class="stats">
+        <div class="stat"><b>42.5</b><span>days/yr, no priority rule</span></div>
+        <div class="stat"><b>6.9</b><span>days/yr, fixed battery floors</span></div>
+        <div class="stat"><b>0.6</b><span>days/yr, Rural Spark (offline)</span></div>
+      </div>
+      <div class="links"><span class="tag">SIMULATED</span><a class="btn" href="model_a_controllers.csv" download>Download the data</a></div>
+    </div>
+    <figure class="fig"><img src="shortfall.gif" alt="Animated bar chart: essential-shortfall days per year of 42.5, 6.9, 0.6 and 0.0 for four controllers"><figcaption><b>Days a year with any essential-load shortfall</b>, 16 years of hourly weather, final hardware.</figcaption></figure>
+  </div>
+</section>
+
+<section class="page flip" id="year" data-title="Stress tests">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">05 · Full year and stress tests</div>
+      <h2>A second, independent model: zero blackouts and zero spoiled batches, even under stress</h2>
+      <p>Built separately from the 16-year model, with appliance-level demand and an imperfect forecast. We aged the battery, took out a panel string and added 20% more demand. Only Rural Spark stayed at zero on both counts.</p>
+      <div class="stats">
+        <div class="stat"><b>9 → 0</b><span>essential blackouts a year</span></div>
+        <div class="stat"><b>3 → 0</b><span>processing batches spoiled</span></div>
+        <div class="stat"><b>92%</b><span>of the perfect-foresight gain captured</span></div>
+      </div>
+      <div class="links"><span class="tag">SIMULATED</span><a class="btn" href="model_b_results.csv" download>Download the data</a></div>
+    </div>
+    <figure class="fig"><img src="stress.gif" alt="Animated bar charts of essential blackouts and spoiled batches per year for three controllers under four cases"><figcaption><b>Red</b> = typical inverter, <b>orange</b> = static thresholds, <b>green</b> = Rural Spark.</figcaption></figure>
+  </div>
+</section>
+
+<section class="page" id="battery" data-title="Battery model">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">06 · Battery pack model</div>
+      <h2>The LFP pack, modelled block by block in Simulink</h2>
+      <p>Power limits with a heat derate, a dynamic clamp, efficiency and losses, a bounded state-of-charge integrator, a lumped thermal model, cycle counting and ageing, and an electrical view with the open-circuit-voltage curve. No hidden code: every equation is on the canvas.</p>
+      <div class="stats two">
+        <div class="stat"><b>MATLAB R2025a</b><span>RuralSpark_BatteryPack.slx</span></div>
+        <div class="stat"><b>1 parameter set</b><span>drives Simulink, MATLAB and Python</span></div>
+      </div>
+      <div class="links"><a class="btn ghost" href="#code">Get the model</a></div>
+    </div>
+    <figure class="fig"><img src="pack.png" alt="Simulink diagram of the LFP battery pack subsystem" loading="lazy"><figcaption><b>Inside the LFP Battery Pack subsystem</b>, exported from MATLAB R2025a.</figcaption></figure>
+  </div>
+</section>
+
+<section class="page flip" id="verify" data-title="Verification">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">07 · Verification in MATLAB</div>
+      <h2>16 of 16 cases pass, matched to within 10<sup>−10</sup></h2>
+      <p>We ran the Simulink model on 16 replayed battery profiles (three weeks and a full year, four controllers each) and compared every step with our MATLAB function model and the Python simulation.</p>
+      <div class="stats">
+        <div class="stat"><b>5.6×10<sup>−16</sup></b><span>max SoC difference vs MATLAB</span></div>
+        <div class="stat"><b>1.3×10<sup>−10</sup></b><span>max SoC difference vs Python</span></div>
+        <div class="stat"><b>16 / 16</b><span>cases pass</span></div>
+      </div>
+      <div class="links"><span class="tag">RUN IN MATLAB</span><a class="btn" href="simulink_verification.csv" download>Download the data</a></div>
+    </div>
+    <figure class="fig"><img src="verify.gif" alt="Animated bar chart of 16 verification cases, all far below the pass limit" loading="lazy"><figcaption><b>Each bar is one case</b>; the red dashed line is the pass limit. Lower is better.</figcaption></figure>
+  </div>
+</section>
+
+<section class="page" id="harness" data-title="Test harness">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">08 · What the pack tells the business</div>
+      <h2>The battery lasts long enough for the finance plan</h2>
+      <p>With our controller the pack runs about 118 full cycles a year. It reaches 80% capacity in year 9.6 and about 73% in year 13. Essentials still hold at 100% with the battery at 70%, so the finance model replaces it in year 13 on measured health and tests year 10 as a downside.</p>
+      <div class="stats">
+        <div class="stat"><b>~118</b><span>full cycles a year</span></div>
+        <div class="stat"><b>Year 9.6</b><span>80% capacity</span></div>
+        <div class="stat"><b>Year 13</b><span>planned replacement (~73%)</span></div>
+      </div>
+    </div>
+    <figure class="fig"><img src="top.png" alt="Top-level Simulink test harness with replayed inputs, the battery pack subsystem and logged outputs" loading="lazy"><figcaption><b>Test harness:</b> replayed battery requests and outdoor temperature in; state of charge, power, temperature, cycles and capacity out.</figcaption></figure>
+  </div>
+</section>
+
+<section class="page flip" id="finance" data-title="Finance">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">09 · Finance</div>
+      <h2>After the grant, the plant pays its way and funds its own renewal</h2>
+      <p>A 15-year cash-flow model with every input labelled. Year-one revenue covers running costs 2.2 times. With the State parity payment the renewal reserve stays positive for 15 years, including the battery in year 13. With tariffs alone it fails in year 12, and we show that too.</p>
+      <div class="stats">
+        <div class="stat"><b>₹29.76 L</b><span>capital cost (₹23.1–40.0 L)</span></div>
+        <div class="stat"><b>2.2×</b><span>year-1 revenue ÷ running cost</span></div>
+        <div class="stat"><b>₹39/kWh</b><span>levelised cost incl. capital</span></div>
+      </div>
+      <div class="links"><span class="tag">MODELLED</span><a class="btn" href="renewal_reserve.csv" download>Download the data</a><a class="btn ghost" href="capex.csv" download>Capital cost</a></div>
+    </div>
+    <figure class="fig"><img src="reserve.gif" alt="Animated renewal reserve over 15 years for optimistic, base, tariffs-only and pessimistic scenarios" loading="lazy"><figcaption><b>Renewal reserve, ₹ lakh.</b> Dotted lines mark the controls, inverter and battery renewals.</figcaption></figure>
+  </div>
+</section>
+
+<section class="page" id="sizing" data-title="Sizing">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">10 · Sizing</div>
+      <h2>The controller makes the design forgiving</h2>
+      <p>A sweep of solar and battery sizes at the original specification scale. Our controller keeps essential supply at 100% across the whole grid of 8–14 kWp and 10–30 kWh. Static thresholds need at least 20 kWh to do the same.</p>
+      <div class="links"><span class="tag">SIMULATED</span></div>
+    </div>
+    <figure class="fig"><img src="sizing_heatmaps.png" alt="Heatmaps of essential supply and processing energy across solar and battery sizes for each controller" loading="lazy"><figcaption><b>Sizing sweep</b> at specification scale (24.5 kWh/day). The final design was chosen from 16 years of weather.</figcaption></figure>
+  </div>
+</section>
+
+<section class="page full" id="data" data-title="Data">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">11 · Data behind every chart</div>
+      <h2>Check every number yourself</h2>
+      <p>Each file is the exact output used in the deck and on these pages. They open in Excel or any spreadsheet.</p>
+      <div class="grid">
+        <a class="cardl" href="worst_week_hourly.csv" download><b>worst_week_hourly.csv</b><span>Hourly solar, battery % and essential energy lost, 4 controllers, worst week</span></a>
+        <a class="cardl" href="model_b_results.csv" download><b>model_b_results.csv</b><span>Worst week, full year and three stress years, 15 metrics</span></a>
+        <a class="cardl" href="model_a_controllers.csv" download><b>model_a_controllers.csv</b><span>16-year model: shortfall days and energy delivered</span></a>
+        <a class="cardl" href="model_a_monthly_yield.csv" download><b>model_a_monthly_yield.csv</b><span>Site solar yield by month, mean and P10</span></a>
+        <a class="cardl" href="simulink_verification.csv" download><b>simulink_verification.csv</b><span>16 Simulink cases vs MATLAB and Python</span></a>
+        <a class="cardl" href="capex.csv" download><b>capex.csv</b><span>Capital cost lines, base / optimistic / pessimistic</span></a>
+        <a class="cardl" href="renewal_reserve.csv" download><b>renewal_reserve.csv</b><span>Renewal reserve by year, 4 scenarios</span></a>
+        <a class="cardl" href="base_cashflow.csv" download><b>base_cashflow.csv</b><span>Base-case 15-year cash flow</span></a>
+        <a class="cardl" href="kpis.csv" download><b>kpis.csv</b><span>LCOE, NPV, payback, funding gap</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page full" id="code" data-title="Model code">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">12 · The models</div>
+      <h2>All three models, ready to run</h2>
+      <p>One download with the code, inputs and results, so every chart can be reproduced.</p>
+      <div class="grid">
+        <div class="cardl"><b>simulation_b1/</b><span>5/15-minute controller simulation (Python) with the MATLAB battery pack model and Simulink file. Run <code>matlab/RUN_ME.m</code>.</span></div>
+        <div class="cardl"><b>dispatch_16yr/</b><span>16-year hourly dispatch model (JavaScript) on PVGIS-ERA5 weather, with results.</span></div>
+        <div class="cardl"><b>finance/</b><span>15-year cash-flow and renewal-reserve model (Python) and outputs.</span></div>
+      </div>
+      <div class="links" style="margin-top:20px"><a class="btn" href="Rural_Spark_models.zip" download>Download Rural_Spark_models.zip</a><a class="btn ghost" href="https://github.com/Parthasarathy1705/rural-spark">Open the repository</a></div>
+      <p class="note">What these results are not: loads are assumed schedules until a 4-week metered baseline; the models are energy models (no motor starting, faults or phase imbalance); PVGIS is satellite reanalysis, so on-site shading is not yet verified; no hardware has run in the field yet. No funding is sanctioned and no tariff is agreed.</p>
+    </div>
+  </div>
+</section>
+
+<section class="page full" id="sources" data-title="Sources">
+  <div class="wrap">
+    <div class="text">
+      <div class="num">13 · Sources</div>
+      <h2>Where the numbers come from</h2>
+      <ol class="src">
+        <li><a href="https://powermin.gov.in/sites/default/files/uploads/LS05022026_Eng.pdf">Ministry of Power, Lok Sabha Q.87 (5 Feb 2026)</a>: rural supply 12.5 h (2014) → 22.6 h (2025)</li>
+        <li><a href="https://cdnbbsr.s3waas.gov.in/s3716e1b8c6cd17b771da77391355749f3/uploads/2024/10/20241021925042646.pdf">MNRE order and guidelines, New Solar Power Scheme (18 Oct 2024)</a></li>
+        <li><a href="https://mnre.gov.in/en/pm-janman/">MNRE PM-JANMAN scheme page</a></li>
+        <li><a href="https://greentechlead.com/solar/india-releases-rs-57-10-crore-for-tribal-solar-program-as-11838-households-gain-off-grid-power-1-39-lakh-pvtg-homes-targeted-54519">GreentechLead (2 Aug 2026): 11,838 homes, ₹57.10 crore</a></li>
+        <li><a href="https://telanganatoday.com/three-phase-power-supply-to-tribal-hamlets-across-telangana">Telangana Today (10 May 2022): 182 habitations</a></li>
+        <li><a href="https://telanganatoday.com/pm-janman-468-pvtg-villages-identified-in-telangana">Telangana Today (22 Jan 2024): 468 PVTG villages</a></li>
+        <li><a href="https://nagarkurnool.telangana.gov.in/tribal-development/">ITDA Mannanur, Nagarkurnool: Chenchu population</a></li>
+        <li><a href="https://www.downtoearth.org.in/forests/world-earth-day-2026-telanganas-chenchu-adivasis-resist-forcible-relocation-from-amrabad-tiger-reserve">Down To Earth (22 Apr 2026): relocation, Sarlapalli</a></li>
+        <li><a href="https://www.eco-business.com/news/assams-rural-solar-scheme-fails-to-keep-the-lights-on/">Eco-Business / The Third Pole (2023): Assam failures</a></li>
+        <li><a href="https://india.mongabay.com/2022/02/in-odishas-first-solar-village-maintenance-issues-plague-the-mini-solar-plant/">Mongabay India (2022): Odisha mini-grid failure</a></li>
+        <li><a href="https://mohfw.gov.in/sites/default/files/Unit4ColdChainandLogisticsManagement.pdf">MoHFW Immunization Handbook, Unit 4</a></li>
+        <li><a href="https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en">EC JRC PVGIS (ERA5 2005–2020, TMY)</a></li>
+        <li><a href="https://www.powerforall.org/application/files/4415/6700/7650/FS__Mini-grids_costs_can_be_reduced_by_60_by_2030.pdf">World Bank (2019) via Power for All: cost per connection, LCOE</a></li>
+        <li><a href="https://www.tgerc.telangana.gov.in/file_upload/uploads/Tariff%20Orders/Current%20Year%20Orders/2026/RST%20Order%20FY%202026-27.pdf">TGERC Tariff Order FY 2026-27, Table 3-38</a></li>
+        <li><a href="https://www.thenewsminute.com/telangana/telangana-starts-implementing-gruha-jyothi-scheme">The News Minute (2024): Gruha Jyothi 200 free units</a></li>
+        <li><a href="https://www.deccanchronicle.com/nation/sweet-hike-for-honey-hunters-885187">Deccan Chronicle (2024): AP GCC honey ₹250/kg</a></li>
+        <li><a href="https://www.thehansindia.com/business/market-compass/petrol-and-diesel-prices-today-in-hyderabad-delhi-chennai-and-mumbai-on-20-october-2026-1134118">The Hans India (20 Oct 2026): diesel ₹103.82/L</a></li>
+        <li><a href="https://powermore.in/blog/solar-module-prices-up-33-percent-india">Powermore (May 2026): module prices</a></li>
+        <li><a href="https://lithiuminverter.in/prices/industrial-bess.html">lithiuminverter.in (May 2026): LFP battery prices</a></li>
+        <li><a href="https://www.indiamart.com/proddetail/deye-15kw-three-phase-hybrid-solar-inverter-2855572019073.html">IndiaMART: 15 kW three-phase hybrid inverter</a></li>
+        <li><a href="https://en.vikaspedia.in/energy/policy-support/battery-waste-management-rules-2022">Battery Waste Management Rules 2022</a></li>
+        <li><a href="https://cea.nic.in/regulations-category/measures-relating-to-safety-and-electric-supply/?lang=en">CEA safety and electric supply regulations 2023</a></li>
+      </ol>
+      <footer>Rural Spark · Schneider Electric Go Green 2026, Phase 2 · Parthasarathy P and Tanush Pavan Vakalaggada · Amrita Vishwa Vidyapeetham</footer>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="navbtn"><button type="button" id="up" aria-label="Previous page">↑</button><button type="button" id="down" aria-label="Next page">↓</button></div>
+
+<script>
+(function(){
+  var root=document.documentElement, book=document.getElementById('book');
+  var pages=[].slice.call(document.querySelectorAll('.page')), dots=document.getElementById('dots');
+  // theme
+  var btns=[].slice.call(document.querySelectorAll('.themes button'));
+  function setTheme(t){root.setAttribute('data-theme',t);btns.forEach(function(b){b.setAttribute('aria-pressed',b.dataset.t===t?'true':'false');});try{localStorage.setItem('rs-theme',t);}catch(e){}}
+  var saved='forest';try{saved=localStorage.getItem('rs-theme')||'forest';}catch(e){}
+  setTheme(saved);
+  btns.forEach(function(b){b.addEventListener('click',function(){setTheme(b.dataset.t);});});
+  // dots
+  pages.forEach(function(p){var a=document.createElement('a');a.href='#'+p.id;a.title=p.dataset.title;a.setAttribute('aria-label',p.dataset.title);dots.appendChild(a);});
+  var dl=[].slice.call(dots.children), cur=0;
+  function mark(i){cur=i;dl.forEach(function(d,j){d.classList.toggle('on',j===i);});document.getElementById('prog').style.width=((i)/(pages.length-1)*100)+'%';}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting&&e.intersectionRatio>0.55){mark(pages.indexOf(e.target));}});},{root:book,threshold:[0.55]});
+  pages.forEach(function(p){io.observe(p);});
+  mark(0);
+  function go(i){i=Math.max(0,Math.min(pages.length-1,i));pages[i].scrollIntoView({behavior:'smooth'});}
+  document.getElementById('up').addEventListener('click',function(){go(cur-1);});
+  document.getElementById('down').addEventListener('click',function(){go(cur+1);});
+  document.addEventListener('keydown',function(e){if(e.key==='ArrowDown'||e.key==='PageDown'){e.preventDefault();go(cur+1);}else if(e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();go(cur-1);}});
+  // open the page named in the link (e.g. #battery)
+  if(location.hash){var t=document.getElementById(location.hash.slice(1));if(t)setTimeout(function(){t.scrollIntoView();},50);}
+})();
+</script>
+</body>
+</html>
